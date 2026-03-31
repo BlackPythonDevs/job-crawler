@@ -10,7 +10,7 @@ from discord.ext import tasks
 
 from .config import Config
 from .embeds import job_embed
-from .greenhouse import fetch_jobs
+from .controller import fetch_all_jobs
 from .state import filter_new_jobs, mark_job_posted
 from .summarize import summarize_job
 
@@ -42,15 +42,15 @@ class JobCrawlerBot(discord.Client):
             log.error("Channel %s is not messageable", self.config.discord_channel_id)
             return
 
-        log.info("[fetch] Fetching jobs from Greenhouse ...")
+        log.info("[fetch] Fetching jobs from %d board(s) ...", len(self.config.board_urls))
         try:
-            all_jobs = await fetch_jobs(
-                self.http_client, self.config.greenhouse_board_url
+            all_jobs = await fetch_all_jobs(
+                self.http_client, self.config.board_urls
             )
         except Exception:
-            log.exception("[fetch] Failed to fetch jobs from Greenhouse")
+            log.exception("[fetch] Failed to fetch jobs")
             return
-        log.info("[fetch] Got %d jobs from Greenhouse", len(all_jobs))
+        log.info("[fetch] Got %d jobs from %d board(s)", len(all_jobs), len(self.config.board_urls))
 
         log.info("[filter] Checking Valkey for already-posted jobs ...")
         new_jobs = await filter_new_jobs(self.valkey_client, all_jobs)
@@ -98,15 +98,15 @@ async def _dry_run(max_posts: int | None = None) -> None:
         httpx.AsyncClient() as http_client,
         avalkey.from_url(config.valkey_url) as valkey_client,
     ):
-        log.info("[fetch] Fetching jobs from Greenhouse ...")
-        all_jobs = await fetch_jobs(http_client, config.greenhouse_board_url)
-        log.info("[fetch] Got %d jobs from Greenhouse", len(all_jobs))
+        log.info("[fetch] Fetching jobs from %d board(s) ...", len(config.board_urls))
+        all_jobs = await fetch_all_jobs(http_client, config.board_urls)
+        log.info("[fetch] Got %d jobs from %d board(s)", len(all_jobs), len(config.board_urls))
 
         log.info("[filter] Checking Valkey for already-posted jobs ...")
         new_jobs = await filter_new_jobs(valkey_client, all_jobs)
         display = new_jobs[:max_posts] if max_posts else new_jobs
 
-        print(f"Total jobs from Greenhouse: {len(all_jobs)}")
+        print(f"Total jobs from {len(config.board_urls)} board(s): {len(all_jobs)}")
         print(f"New jobs (not in Valkey):    {len(new_jobs)}")
         if max_posts and len(new_jobs) > max_posts:
             print(f"Showing first {max_posts} of {len(new_jobs)}")

@@ -22,7 +22,17 @@ class Config:
         self.greenhouse_board_url: str = os.getenv(
             "GREENHOUSE_BOARD_URL", DEFAULT_BOARD_URL
         )
+        self.board_urls: list[str] = _parse_board_urls(
+            os.getenv("BOARD_URLS", ""),
+            fallback=self.greenhouse_board_url,
+        )
         self.ollama_model: str = os.getenv("OLLAMA_MODEL", "ministral-3")
+
+
+def _parse_board_urls(raw: str, fallback: str) -> list[str]:
+    """Parse comma-separated BOARD_URLS, falling back to the single Greenhouse URL."""
+    urls = [u.strip() for u in raw.split(",") if u.strip()]
+    return urls if urls else [fallback]
 
 
 def _require(name: str) -> str:
