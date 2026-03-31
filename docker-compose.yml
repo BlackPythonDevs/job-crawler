@@ -1,0 +1,28 @@
+services:
+  valkey:
+    image: valkey/valkey
+    command: valkey-server --save 60 1 --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - valkey-data:/data
+
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+
+  bot:
+    build: .
+    depends_on:
+      - valkey
+      - ollama
+    environment:
+      VALKEY_URL: valkey://valkey:6379/0
+      OLLAMA_BASE_URL: http://ollama:11434
+
+volumes:
+  valkey-data:
+  ollama-data:
