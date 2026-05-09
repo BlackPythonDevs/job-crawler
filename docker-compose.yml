@@ -7,22 +7,15 @@ services:
     volumes:
       - valkey-data:/data
 
-  ollama:
-    image: ollama/ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama-data:/root/.ollama
-
   bot:
     build: .
     depends_on:
       - valkey
-      - ollama
+    env_file: .env
     environment:
       VALKEY_URL: valkey://valkey:6379/0
-      OLLAMA_BASE_URL: http://ollama:11434
+    volumes:
+      - ./config.toml:/app/config.toml:ro
 
 volumes:
   valkey-data:
-  ollama-data:

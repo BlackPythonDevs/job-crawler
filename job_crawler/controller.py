@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import httpx
 
+from .board_config import BoardConfig, BoardEntry
 from .greenhouse import Job
 from .greenhouse import fetch_jobs as fetch_greenhouse_jobs
 from .ripling import fetch_jobs as fetch_ripling_jobs
@@ -15,12 +16,19 @@ def _get_fetcher(url: str):
     raise ValueError(f"Unsupported job board URL: {url}")
 
 
+async def _fetch_for_board(
+    client: httpx.AsyncClient, board: BoardEntry
+) -> list[Job]:
+    fetcher = _get_fetcher(board.url)
+    jobs = await fetcher(client, board.url)
+    return [j for j in jobs if board.allows(j.department)]
+
+
 async def fetch_all_jobs(
     client: httpx.AsyncClient,
-    board_urls: list[str],
+    config: BoardConfig,
 ) -> list[Job]:
     jobs: list[Job] = []
-    for url in board_urls:
-        fetcher = _get_fetcher(url)
-        jobs.extend(await fetcher(client, url))
+    for board in config.boards:
+        jobs.extend(await _fetch_for_board(client, board))
     return jobs

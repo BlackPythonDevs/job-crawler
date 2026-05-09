@@ -47,6 +47,7 @@ async def test_fetch_jobs_parses_response():
         updated_at="",
         first_published="",
         content="",
+        department="Legal",
     )
     assert jobs[1].location_name == "Austin, TX"
     assert jobs[1].company_name == "Sales"

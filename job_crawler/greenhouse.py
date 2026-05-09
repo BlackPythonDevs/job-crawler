@@ -8,7 +8,7 @@ import httpx
 
 @dataclass(frozen=True)
 class Job:
-    id: int
+    id: int | str
     title: str
     absolute_url: str
     location_name: str
@@ -16,11 +16,21 @@ class Job:
     updated_at: str
     first_published: str
     content: str
+    department: str = ""
 
 
 def _strip_html(html: str) -> str:
     text = re.sub(r"<[^>]+>", " ", html)
     return re.sub(r"\s+", " ", text).strip()
+
+
+def _first_department(entry: dict) -> str:
+    departments = entry.get("departments") or []
+    for d in departments:
+        name = (d or {}).get("name")
+        if name:
+            return name
+    return ""
 
 
 async def fetch_jobs(client: httpx.AsyncClient, board_url: str) -> list[Job]:
@@ -42,6 +52,7 @@ async def fetch_jobs(client: httpx.AsyncClient, board_url: str) -> list[Job]:
                 updated_at=entry.get("updated_at", ""),
                 first_published=entry.get("first_published", ""),
                 content=_strip_html(raw_content),
+                department=_first_department(entry),
             )
         )
     return jobs
