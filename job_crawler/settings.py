@@ -28,7 +28,18 @@ class Settings:
         )
         self.job_ttl_seconds: int = int(os.getenv("JOB_TTL_SECONDS", "7776000"))
 
+        self.poll_interval_seconds: int = int(
+            os.getenv("POLL_INTERVAL_SECONDS", "14400")
+        )
+
         self.config_path: str = os.getenv("JOB_CRAWLER_CONFIG", "./config.toml")
+
+        self.api_host: str = os.getenv("API_HOST", "0.0.0.0")
+        self.api_port: int = int(os.getenv("API_PORT", "8080"))
+
+        self.log_file: str = os.getenv(
+            "LOG_FILE", "/var/log/job-crawler/job-crawler.log"
+        )
 
 
 def _require(name: str) -> str:

@@ -22,12 +22,16 @@ def test_env_overrides(monkeypatch):
     monkeypatch.setenv("LLM_BASE_URL", "https://api.openai.com/v1")
     monkeypatch.setenv("MODEL_NAME", "gpt-4o-mini")
     monkeypatch.setenv("LLM_API_KEY", "sk-test")
+    monkeypatch.setenv("POLL_INTERVAL_SECONDS", "60")
+    monkeypatch.setenv("API_PORT", "9090")
 
     s = Settings()
     assert s.apprise_url == "http://apprise/notify/x"
     assert s.llm_base_url == "https://api.openai.com/v1"
     assert s.model_name == "gpt-4o-mini"
     assert s.llm_api_key == "sk-test"
+    assert s.poll_interval_seconds == 60
+    assert s.api_port == 9090
 
 
 def test_defaults(monkeypatch):
@@ -35,3 +39,5 @@ def test_defaults(monkeypatch):
     s = Settings()
     assert s.llm_base_url == "http://localhost:11434/v1"
     assert s.model_name == "ministral-3"
+    assert s.poll_interval_seconds == 14400
+    assert s.api_port == 8080
