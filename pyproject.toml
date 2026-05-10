@@ -1,13 +1,12 @@
 [project]
 name = "job-crawler"
-version = "0.1.0"
-description = "Discord bot that announces new job postings"
+version = "0.2.0"
+description = "Job board crawler that posts new openings via Apprise."
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "discord-py>=2.4",
     "httpx>=0.28.1",
-    "pydantic-ai[ollama]",
+    "pydantic-ai[openai]",
     "valkey>=6.0",
 ]
 

@@ -1,0 +1,12 @@
+# Boards to crawl. Each entry is one job board API URL.
+# Optional `departments` list filters jobs to those whose department
+# matches one of the listed names (case-insensitive, exact match).
+# Omit `departments` to allow every job from that board.
+
+[[boards]]
+url = "https://boards-api.greenhouse.io/v1/boards/temporaltechnologies/jobs"
+departments = ["Engineering", "Developer Relations"]
+
+# [[boards]]
+# url = "https://api.rippling.com/platform/api/ats/v1/board/<slug>/jobs"
+# departments = ["Software Engineering"]
